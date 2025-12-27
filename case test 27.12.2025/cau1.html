@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>cau1</title>
+</head>
+<body>
+      <script>
+
+            let n = parseInt(prompt("Nhập số phần tử n:"), 10);
+            if (isNaN(n) || n < 0 || n >= 50) {
+                  alert(n + " không hợp lệ");
+            } else {
+                  const arr = [];
+
+                  for (let i = 0; i < n; i++) {
+                        let value = parseInt(prompt("Nhập giá trị " + (i + 1) + ":"), 10);
+                        if (isNaN(value)) {
+                              alert('Giá trị không hợp lệ, hãy nhập lại.');
+                              i--;
+                              continue;
+                        }
+                        arr.push(value);
+                        document.write("Giá trị " + (i + 1) + ": " + value + "<br>");
+                  }
+
+                  let sum = 0;
+                  let count = 0;
+                  for (let i = 0; i < arr.length; i++) {
+                        const position = i ; 
+                        const value = arr[i];
+                        if (position % 2 === 0 && Math.abs(value) % 2 === 1) {
+                              sum += value;
+                              count++;
+                        }
+                  }
+
+                  if (count > 0) {
+                        const avg = sum / count;
+                        document.write("Trung bình cộng các số lẻ ở vị trí chẵn là: " + avg);
+                  } else {
+                        document.write("Không có số lẻ ở vị trí chẵn.");
+                  }
+            }
+      </script>
+</body>
+</html>

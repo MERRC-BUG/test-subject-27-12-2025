@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Quản lí sách</title>
+</head>
+<body>
+      <h1>Quản lí sách</h1>
+      <form id="bookForm">
+            <label for="bookName">Tên sách:</label>
+            <input type="text" id="bookName" name="bookName" required><br><br>
+            <label for="author">Tác giả:</label>
+            <input type="text" id="author" name="author" required><br><br>
+            <label for="year">Năm xuất bản:</label>
+            <input type="number" id="year" name="year" required><br><br>
+            <label for="code">Mã sách (5 kí tự, ví dụ 1xxxx):</label>
+            <input type="text" id="code" name="code" required><br><br>
+            <label for="count">Số quyển:</label>
+            <input type="number" id="count" name="count" required><br><br>
+            <label for="status">Tình trạng:</label>
+            <select id="status" name="status">
+                  <option value="true">Còn (chưa cho mượn hết)</option>
+                  <option value="false">Hết (đã cho mượn hết)</option>
+            </select><br><br> 
+            <button type="submit">Thêm sách</button>
+            <button type="button" id="clear">Xóa form</button>
+      </form>
+
+      <h2>Danh sách sách:</h2>
+      <table border="1px" id="booksTable" style="width: 100%; text-align:center; color: black; border: 1px solid black;">
+            <thead>
+                  <tr>
+                        <th>Tên sách</th>
+                        <th>Tác giả</th>
+                        <th>Năm xuất bản</th>
+                        <th>Mã sách</th>
+                        <th>Số quyển</th>
+                        <th>Tình trạng</th>
+                        <th>Hành động</th>
+                  </tr>
+            </thead>
+            <tbody>
+            </tbody>
+      </table>
+      <!-- <ul id="bookList"></ul> -->
+
+      <script>
+            
+            function validCode(code) {
+                  if (typeof code !== 'string' || code.length !== 5) return false;
+                  const first = code.charAt(0);
+                  if (!/[1-5]/.test(first)) return false;
+                  for (let i = 1; i < 5; i++) if (!/[0-9]/.test(code.charAt(i))) return false;
+                  return true;
+            }
+
+            function validYear(y) {
+                  return /^[0-9]{4}$/.test(String(y));
+            }
+
+            function validPositiveInt(v) {
+                  const n = Number(v);
+                  return Number.isInteger(n) && n >= 0;
+            }
+
+            class Book {
+                  constructor(name, author, year, code, count, status) {
+                        this.name = name;
+                        this.author = author;
+                        this.year = Number(year);
+                        this.code = String(code);
+                        this.count = Number(count);
+                        this.status = Boolean(status);
+                  }
+            }
+
+            const books = [];
+            const form = document.getElementById('bookForm');
+            const tbody = document.querySelector('#booksTable tbody');
+            const clearBtn = document.getElementById('clear');
+
+            function render() {
+                  tbody.innerHTML = '';
+                  books.forEach((book, index) => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `<td>${book.name}</td><td>${book.author}</td><td>${book.year}</td><td>${book.code}</td><td>${book.count}</td><td>${book.status? 'Còn':'Hết'}</td>`;
+                        const actions = document.createElement('td');
+                        const edit = document.createElement('button'); edit.textContent = 'Sửa';
+                        const del = document.createElement('button'); del.textContent = 'Xóa';
+                        const toggle = document.createElement('button'); toggle.textContent = book.status ? 'Đánh dấu là Hết' : 'Đánh d là Còn';
+                        edit.onclick = () => fillFormForEdit(index);
+                        del.onclick = () => { if (confirm('Xóa sách này?')) { books.splice(index, 1); render(); } };
+                        toggle.onclick = () => { book.status = !book.status; render(); };
+                        actions.appendChild(edit); actions.appendChild(del); actions.appendChild(toggle);
+                        tr.appendChild(actions);
+                        tbody.appendChild(tr);
+                  });
+            }
+
+            function fillFormForEdit(index) {
+                  const book = books[index];
+                  document.getElementById('bookName').value = book.name;
+                  document.getElementById('author').value = book.author;
+                  document.getElementById('year').value = book.year;
+                  document.getElementById('code').value = book.code;
+                  document.getElementById('count').value = book.count;
+                  document.getElementById('status').value = String(book.status);
+                  form.dataset.editIndex = index;
+            }
+
+            form.addEventListener('submit', function(event) {
+                  event.preventDefault();
+                  const name = document.getElementById('bookName').value.trim();
+                  const author = document.getElementById('author').value.trim();
+                  const year = document.getElementById('year').value.trim();
+                  const code = document.getElementById('code').value.trim();
+                  const count = document.getElementById('count').value.trim();
+                  const status = document.getElementById('status').value === 'true';
+
+                  if (!validCode(code)) { alert('Mã sách không hợp lệ. Mã sách phải gồm 5 ký tự, bắt đầu bằng chữ số từ 1 đến 5, theo sau là 4 chữ số.'); return; }
+                  if (!validYear(year)) { alert('Năm xuất bản không hợp lệ. Vui lòng nhập năm gồm 4 chữ số.'); return; }
+                  if (!validPositiveInt(count)) { alert('Số quyển phải là số nguyên >= 0.'); return; }
+                  if (!name) { alert('Tên sách không được để trống.'); return; }
+
+                  const editIndex = form.dataset.editIndex;
+                  if (editIndex !== undefined) {
+                        const idx = Number(editIndex);
+                        books[idx] = new Book(name, author, year, code, count, status);
+                        delete form.dataset.editIndex;
+                  } else {
+                        if (books.some(b => b.code === code)) { alert('Mã sách đã tồn tại.'); return; }
+                        books.push(new Book(name, author, year, code, count, status));
+                  }
+                  form.reset();
+                  render();
+            });
+
+            clearBtn.addEventListener('click', () => { form.reset(); delete form.dataset.editIndex; });
+
+            // Ví dụ dữ liệu mẫu
+            books.push(new Book('Toán', 'anh A', 2000, '12345', 3, true));
+            books.push(new Book('Văn', 'anh B', 1998, '23456', 0, true));
+            books.push(new Book('Lý', 'anh C', 1999, '37456', 5, true));
+            render();
+      </script>
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Câu 2</title>
+</head>
+<body>
+      
+      <script>
+      
+            function sumProperDivisors(x) {
+                 if (!Number.isInteger(x) || x <= 1) return 0;
+                  let sum = 1;
+                  for (let i = 2; i * i <= x; i++) {
+                        if (x % i === 0) {
+                              sum += i;
+                              const j = x / i;
+                              if (j !== i) sum += j;
+                        }
+                  }
+                  return sum;
+                  document.write("Tổng của tất cả các ước số của " + x + " là " + sum);
+            }
+            function isAmicable(a, b) {
+                  if (!Number.isInteger(a) || !Number.isInteger(b) || a <= 0 || b <= 0) return false;
+                  if (a === b) return false; 
+                  return sumProperDivisors(a) === b && sumProperDivisors(b) === a;
+            }
+
+            
+            const a = parseInt(prompt('Nhập số dương a:'), 10);
+            const b = parseInt(prompt('Nhập số dương b:'), 10);
+            if (!Number.isInteger(a) || !Number.isInteger(b) || a <= 0 || b <= 0) {
+                  alert('Vui lòng nhập hai số nguyên dương hợp lệ.');
+            } else {
+                  const result = isAmicable(a, b);
+                  document.write('Kiểm tra cặp (' + a + ', ' + b + '): ' + (result ? 'Là cặp số thân thiết' : 'Không phải cặp số thân thiết'));
+                  alert('Kết quả: ' + (result ? 'Là cặp số thân thiết' : 'Không phải cặp số thân thiết'));
+            }
+      </script>
+      
+</body>
+</html>
